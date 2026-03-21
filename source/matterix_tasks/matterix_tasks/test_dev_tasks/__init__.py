@@ -7,6 +7,7 @@ import gymnasium as gym
 import os
 
 from . import test_franka_beaker_lift, test_franka_beakers, test_particle_systems
+from . import test_genie_G2_beaker_lift
 
 ##
 # Register Gym environments.
@@ -35,6 +36,15 @@ gym.register(
     entry_point="matterix.envs:MatterixBaseEnv",
     kwargs={
         "env_cfg_entry_point": test_franka_beaker_lift.FrankaBeakerLiftEnvTestCfg,
+    },
+    disable_env_checker=True,
+)
+
+gym.register(
+    id="Matterix-Test-G2-Lift-Beaker-v1",
+    entry_point="matterix.envs:MatterixBaseEnv",
+    kwargs={
+        "env_cfg_entry_point": test_genie_G2_beaker_lift.G2LiftEnvTestCfg,
     },
     disable_env_checker=True,
 )
