@@ -7,3 +7,4 @@
 # Configuration for different assets.
 ##
 from .franka_arms import *
+from .genie_G2 import *
