@@ -16,7 +16,7 @@ conda activate Matterix
 $env:MATTERIX_PATH = "D:\Beginning with Embodied\Matterix"
 
 # 运行程序
-python scripts/run_workflow.py --task Matterix-Test-Beaker-Lift-Franka-v1 --workflow pickup_beaker --num_envs 1
+python scripts/run_workflow.py --task Matterix-Test-G2-Lift-Beaker-v1 --workflow pickup_beaker --num_envs 1
 ```
 
 ## About Matterix
