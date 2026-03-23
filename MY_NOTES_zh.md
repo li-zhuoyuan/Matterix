@@ -19,6 +19,23 @@ $env:MATTERIX_PATH = "D:\Beginning with Embodied\Matterix"
 python scripts/run_workflow.py --task Matterix-Test-Beaker-Lift-Franka-v1 --workflow pickup_beaker --num_envs 1
 ```
 
+## About Matterix
+### Information
+ * matterix_tasks
+ 其中的test_dev_tasks中存放了各个任务，需要在__init__.py中进行Gym的id注册，例如：
+ ```python
+gym.register(
+    id="Matterix-Test-Beaker-Lift-Franka-v1",
+    entry_point="matterix.envs:MatterixBaseEnv",
+    kwargs={
+        "env_cfg_entry_point": test_franka_beaker_lift.FrankaBeakerLiftEnvTestCfg,
+    },
+    disable_env_checker=True,
+)
+ ```
+ 其中的参数FrankaBeakerLiftEnvTestCfg中定义了workflow
+
+
 ## Personal Workflow
 
 **upstream:** https://github.com/ac-rad/Matterix.git
