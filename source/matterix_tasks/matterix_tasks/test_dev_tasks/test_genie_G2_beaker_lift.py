@@ -9,11 +9,11 @@ from matterix.envs import MatterixBaseEnvCfg, mdp
 from matterix.managers import EventManagerCfg
 from matterix_assets.infrastructure.tables import TABLE_SEATTLE_INST_Cfg
 from matterix_assets.labware.beakers import BEAKER_500ML_INST_CFG
-from matterix_assets.robots import FRANKA_PANDA_HIGH_PD_IK_CFG
+from matterix_assets.robots import GENIE_G2_INST_HIGH_PD_CFG
 
 # Import workflow definitions from separate file (avoids circular deps and allows lightweight listing)
-from matterix_sm import PickObjectCfg, MoveToFrameCfg
-from matterix_sm.robot_action_spaces import FRANKA_IK_ACTION_SPACE
+from matterix_sm import PickObjectCfg
+from matterix_sm.robot_action_spaces import GENIE_G2_ACTION_SPACE
 
 import isaaclab.envs.mdp as isaaclab_mdp
 from isaaclab.managers import EventTermCfg as EventTerm
@@ -125,11 +125,11 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
     }
 
     articulated_assets = {
-        "robot": FRANKA_PANDA_HIGH_PD_IK_CFG(pos=(0.0, 0, 0)),  # robot arm with joint controller
+        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(0.5, 0, 0)),  # robot arm with joint controller
     }
-
+    
     # Gripper joint names for observation functions
-    gripper_joint_names = ["panda_finger_joint1", "panda_finger_joint2"]
+    gripper_joint_names = ["idx31_gripper_l_inner_joint1", "idx71_gripper_r_inner_joint1"]
 
     observations = ObservationManagerCfg()
     events = EventCfg()
@@ -143,7 +143,7 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
                 description="Pick up the beaker",
                 agent_assets="robot",
                 object="beaker",
-                action_space_info=FRANKA_IK_ACTION_SPACE,
+                action_space_info=GENIE_G2_ACTION_SPACE,  
             ),
 
     }

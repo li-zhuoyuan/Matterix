@@ -47,18 +47,77 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
             solver_position_iteration_count=8,
             solver_velocity_iteration_count=0,
         ),
-        # collision_props=sim_utils.CollisionPropertiesCfg(contact_offset=0.005, rest_offset=0.0),
     )
+
     init_state = ArticulationCfg.InitialStateCfg(
         pos=(-0.5, 0, 0),
+        joint_pos={
+            "idx21_arm_l_joint1": 0.0,
+            "idx22_arm_l_joint2": -0.569,
+            "idx23_arm_l_joint3": 0.0,
+            "idx24_arm_l_joint4": -2.000,
+            "idx25_arm_l_joint5": 0.0,
+            "idx26_arm_l_joint6": 0.0,
+            "idx27_arm_l_joint7": 0.741,
+        },
     )
-    actuators = { # 添加：驱动器配置
-        "arm": ImplicitActuatorCfg(
-            joint_names_expr=[".*"],  # 匹配所有关节
+    actuators = {
+        "left_arm": ImplicitActuatorCfg(
+            joint_names_expr=["idx2[1-7]_arm_l_joint[1-7]"],  # 匹配左臂关节
             stiffness=100.0,
             damping=10.0,
         ),
+        "right_arm": ImplicitActuatorCfg(
+            joint_names_expr=["idx6[1-7]_arm_r_joint[1-7]"],
+            stiffness=100.0,
+            damping=10.0,
+        ),
+        "left_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx3[1-9]_gripper_l_inner_joint[0-9]"],  # 根据实际需要
+            stiffness=2000.0,
+            damping=100.0,
+        ),
+        "right_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx7[1-9]_gripper_r_inner_joint[0-9]"],
+            stiffness=2000.0,
+            damping=100.0,
+        ),
     }
+
+    sensors = {
+        "ee_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/gripper_l_base_link",
+                    name="end_effector",
+                ),
+            ],
+        ),
+
+        "grasping_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/gripper_l_base_link",
+                    name="grasping_frame",
+                    offset=OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(0.0, 1.0, 0.0, 0.0)),
+                ),
+            ],
+        ),
+    }
+
+    action_terms = {
+        "arm_action": mdp.JointPositionActionCfg(joint_names=["idx2[1-7]_arm_l_joint[1-7]"], scale=0.5, use_default_offset=True),
+        "gripper_action": mdp.JointPositionActionCfg(
+            joint_names=["idx3[1-9]_gripper_l_inner_joint[0-9]"], scale=0.5, use_default_offset=True
+        ),
+    }
+
     semantic_tags = [("class", "robot")]
 
 @configclass
@@ -69,9 +128,10 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
 
     # Copy and modify actuators
     actuators = GENIE_G2_INST_CFG().actuators.copy()
-    actuators["arm"] = actuators["arm"].copy()
-    actuators["arm"].stiffness = 100.0
-    actuators["arm"].damping = 10.0
+    actuators["left_arm"] = actuators["left_arm"].copy()
+    actuators["left_arm"].stiffness = 100.0
+    actuators["left_arm"].damping = 10.0
 
-
-
+    actuators["right_arm"] = actuators["right_arm"].copy()
+    actuators["right_arm"].stiffness = 100.0
+    actuators["right_arm"].damping = 10.0
