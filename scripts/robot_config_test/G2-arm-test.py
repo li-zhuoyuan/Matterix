@@ -29,6 +29,8 @@ from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 import isaaclab.sim as sim_utils
 
+from isaaclab.controllers.differential_ik_cfg import DifferentialIKControllerCfg
+
 
 # 启动仿真
 sim = SimulationContext()
@@ -73,14 +75,14 @@ robot_cfg = ArticulationCfg(
     ),
     actuators={
         "left_arm": ImplicitActuatorCfg(
-            joint_names_expr=[".*_arm_l_joint.*"],  # 匹配所有左臂关节
-            stiffness=100.0,
-            damping=10.0,
+            joint_names_expr=["idx2[1-7]_arm_l_joint[1-7]"],  # 匹配所有左臂关节
+            stiffness=1000.0,
+            damping=200.0,
         ),
         "right_arm": ImplicitActuatorCfg(
             joint_names_expr=[".*_arm_r_joint.*"],  # 匹配所有右臂关节
-            stiffness=100.0,
-            damping=10.0,
+            stiffness=1000.0,
+            damping=200.0,
         ),
         "left_gripper": ImplicitActuatorCfg(
             joint_names_expr=[".*_gripper_l_.*"],  # 匹配所有左手爪关节
@@ -92,11 +94,11 @@ robot_cfg = ArticulationCfg(
             stiffness=0.0,
             damping=0.0,
         ),
-        "body": ImplicitActuatorCfg(
-            joint_names_expr=[".*body.*",".*head.*"],  # 匹配所有躯干和头部关节
-            stiffness=1000.0,
-            damping=80.0,
-        ),
+        # "body": ImplicitActuatorCfg(
+        #     joint_names_expr=[".*body.*",".*head.*"],  # 匹配所有躯干和头部关节
+        #     stiffness=1000.0,
+        #     damping=80.0,
+        # ),
     },
 )
 
@@ -130,11 +132,22 @@ print(f"关节名称：{robot.joint_names}")
 count = 0
 period = 120  # 每 120 步更新一次（2 秒@60Hz）
 
+# 初始化变量
+joint_ids = [
+                robot.find_joints("idx21_arm_l_joint1")[0][0],
+                robot.find_joints("idx22_arm_l_joint2")[0][0],
+                robot.find_joints("idx23_arm_l_joint3")[0][0],
+                robot.find_joints("idx24_arm_l_joint4")[0][0],
+                robot.find_joints("idx25_arm_l_joint5")[0][0],
+                robot.find_joints("idx26_arm_l_joint6")[0][0],
+                robot.find_joints("idx27_arm_l_joint7")[0][0],
+            ]
+print(robot.data.joint_pos_limits[0, joint_ids])
+
+target_positions = None
+torso_joint_names = []
+
 while simulation_app.is_running():
-    # 获取机器人状态
-    robot.update(1/60)
-    print(robot.)
-    
     # 周期性更新目标关节位置
     if count % period == 0:
         phase = (count // period) % 4
@@ -144,8 +157,8 @@ while simulation_app.is_running():
         if phase == 0:
             # 手臂抬起
             target_positions = torch.tensor([[
-                0.0,   # idx21_arm_l_joint1
-                0.5,   # idx22_arm_l_joint2
+                -1.5,   # idx21_arm_l_joint1
+                -0.5,   # idx22_arm_l_joint2
                 -0.5,  # idx23_arm_l_joint3
                 0.0,   # idx24_arm_l_joint4
                 0.0,   # idx25_arm_l_joint5
@@ -166,8 +179,8 @@ while simulation_app.is_running():
         elif phase == 1:
             # 手臂向前伸展
             target_positions = torch.tensor([[
-                0.0,
-                0.0,
+                -1.5,
+                -1.0,
                 0.0,
                 -0.8,
                 0.0,
@@ -188,9 +201,9 @@ while simulation_app.is_running():
         elif phase == 2:
             # 手臂向右转
             target_positions = torch.tensor([[
-                0.5,
-                0.3,
+                -1.5,
                 -0.3,
+                0.0,
                 -0.5,
                 0.0,
                 0.0,
@@ -233,22 +246,29 @@ while simulation_app.is_running():
         robot.set_joint_position_target(target_positions, joint_ids)
         
         # 稳定躯干 - 保持躯干关节在初始位置
-        torso_joint_names = [name for name in robot.joint_names if 'body' in name.lower() or 'head' in name.lower()]
-        if torso_joint_names:
-            torso_joint_ids = [robot.find_joints(name)[0][0] for name in torso_joint_names]
-            torso_targets = torch.zeros((1, len(torso_joint_ids)), device=robot.device)
-            robot.set_joint_position_target(torso_targets, torso_joint_ids)
-        
-        print(f"\n[Step {count}] 执行动作相位 {phase}")
-        for i, joint_id in enumerate(joint_ids):
-            joint_name = robot.joint_names[joint_id]
-            print(f"  {joint_name}: {target_positions[0, i]:.3f}")
-        
-        if torso_joint_names:
-            print(f"  躯干稳定：{len(torso_joint_names)} 个关节锁定")
+        # torso_joint_names = [name for name in robot.joint_names if 'body' in name.lower() or 'head' in name.lower()]
+        # if torso_joint_names:
+        #     torso_joint_ids = [robot.find_joints(name)[0][0] for name in torso_joint_names]
+        #     torso_targets = torch.zeros((1, len(torso_joint_ids)), device=robot.device)
+        #     robot.set_joint_position_target(torso_targets, torso_joint_ids)
+
+        # 将控制数据写入仿真
+        robot.write_data_to_sim()
     
     # 步进仿真
     sim.step()
+    
+    # 在仿真步进后读取状态和力矩
+    if count % period == 0:
+        for i, joint_id in enumerate(joint_ids):
+            joint_name = robot.joint_names[joint_id]
+            print(f"  {joint_name}:exp: {target_positions[0, i]:.3f}  fdb: {robot.data.joint_pos[0, joint_id]:.3f}")
+        
+        if torso_joint_names:
+            print(f"  躯干稳定：{len(torso_joint_names)} 个关节锁定")
+
+        print("Joint efforts (arm_l):", robot.data.applied_torque[0, joint_ids].cpu().numpy())
+    
     count += 1
 
 simulation_app.close()
