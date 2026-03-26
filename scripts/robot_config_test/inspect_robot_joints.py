@@ -25,7 +25,7 @@ import isaaclab.sim as sim_utils
 robot_cfg = ArticulationCfg(
     prim_path= "/World/envs/env_0/Robot", #"/World/Robot",  # 添加：机器人在场景中的路径
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie-G2/robot.usd",
+        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie-G2/robot_fix.usda",  # 使用固定的机器人模型
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0, 0, 2.0),
@@ -53,15 +53,16 @@ print(f"\n所有关节名称：")
 for i, name in enumerate(robot.joint_names):
     print(f"  [{i}] {name}")
 
-print(f"\n关节限位：")
-print(f"  最小位置：{robot.data.default_joint_pos_limits[:, 0]}")
-print(f"  最大位置：{robot.data.default_joint_pos_limits[:, 1]}")
-
 print(f"\n关节默认位置：{robot.data.default_joint_pos}")
 
 # 获取连杆信息
 print(f"\n连杆数量：{robot.num_bodies}")
 print(f"连杆名称：{robot.body_names}")
+
+print(robot.data.joint_pos_limits)
+print(robot.data.joint_pos_limits.shape)
+print(robot.data.joint_vel_limits)
+print(robot.data.joint_vel_limits.shape)
 
 # 保持窗口打开以便在 Isaac Sim 中查看
 while simulation_app.is_running():

@@ -9,11 +9,13 @@ from matterix.envs import MatterixBaseEnvCfg, mdp
 from matterix.managers import EventManagerCfg
 from matterix_assets.infrastructure.tables import TABLE_SEATTLE_INST_Cfg
 from matterix_assets.labware.beakers import BEAKER_500ML_INST_CFG
-from matterix_assets.robots import GENIE_G2_INST_HIGH_PD_CFG
+from matterix_assets.robots import GENIE_G2_INST_HIGH_PD_CFG, GENIE_G2_INST_WALKING_CFG
 
 # Import workflow definitions from separate file (avoids circular deps and allows lightweight listing)
 from matterix_sm import PickObjectCfg
-from matterix_sm.robot_action_spaces import GENIE_G2_ACTION_SPACE
+from matterix_sm import MoveRelativeCfg
+from matterix_sm import ChassisMoveCfg
+from matterix_sm.robot_action_spaces import GENIE_G2_GRASP_ACTION_SPACE, GENIE_G2_WALKING_ACTION_SPACE
 
 import isaaclab.envs.mdp as isaaclab_mdp
 from isaaclab.managers import EventTermCfg as EventTerm
@@ -71,13 +73,13 @@ class ObservationManagerCfg:
         robot__ee_world_pos = ObsTerm(func=mdp.ee_world_pos, params={"asset_name": "robot"})
         robot__ee_world_quat = ObsTerm(func=mdp.ee_world_quat, params={"asset_name": "robot"})
         robot__gripper_pos = ObsTerm(func=mdp.gripper_pos, params={"asset_name": "robot"})
-        robot__grasping_frame_world_pos = ObsTerm(
+        robot__walking_frame_world_pos = ObsTerm(
             func=mdp.frame_world_pos,
-            params={"asset_name": "robot", "frame_name": "grasping_frame"},
+            params={"asset_name": "robot", "frame_name": "walking_frame"},
         )
-        robot__grasping_frame_world_quat = ObsTerm(
+        robot__walking_frame_world_quat = ObsTerm(
             func=mdp.frame_world_quat,
-            params={"asset_name": "robot", "frame_name": "grasping_frame"},
+            params={"asset_name": "robot", "frame_name": "walking_frame"},
         )
 
         def __post_init__(self):
@@ -125,11 +127,12 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
     }
 
     articulated_assets = {
-        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(0.5, 0, 0)),  # robot arm with joint controller
+        "robot": GENIE_G2_INST_WALKING_CFG(pos = (-5.0, 0, 0)),
+        # "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.5, 0, 0)),  # robot arm with joint controller
     }
     
     # Gripper joint names for observation functions
-    gripper_joint_names = ["idx31_gripper_l_inner_joint1", "idx71_gripper_r_inner_joint1"]
+    gripper_joint_names = ["idx33_gripper_l_inner_joint4", "idx43_gripper_l_outer_joint4"]
 
     observations = ObservationManagerCfg()
     events = EventCfg()
@@ -138,12 +141,18 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
 
     # Define available workflows for this environment
     workflows = {
-        "pickup_beaker":
-            PickObjectCfg(
-                description="Pick up the beaker",
-                agent_assets="robot",
-                object="beaker",
-                action_space_info=GENIE_G2_ACTION_SPACE,  
-            ),
+        "pickup_beaker": PickObjectCfg(
+            description="Pick up the beaker",
+            agent_assets="robot",
+            object="beaker",
+            action_space_info=GENIE_G2_GRASP_ACTION_SPACE,  
+        ),
 
+        "walk_to_table": ChassisMoveCfg(
+            description="Walk to the table",
+            agent_assets="robot",
+            velocity_command=(2.0, 0, 0.0),
+            timeout = 5.0,
+            action_space_info=GENIE_G2_WALKING_ACTION_SPACE,
+        )
     }

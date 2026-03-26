@@ -87,7 +87,7 @@ to the end-effector frame (wrist flange). For Franka, this is approximately 10.3
 # Pre-defined action spaces for common robots
 # ==================================================================================
 
-GENIE_G2_ACTION_SPACE = ActionSpaceInfo(
+GENIE_G2_GRASP_ACTION_SPACE = ActionSpaceInfo(
     total_dim=11,
     position_indices=(0, 1, 2),
     orientation_indices=(3, 4, 5, 6),
@@ -96,4 +96,13 @@ GENIE_G2_ACTION_SPACE = ActionSpaceInfo(
         (0.0, 0.0, 0.0),  # 10.34cm offset along z-axis (typical for Franka gripper)
         (0.0, -1.0, 0.0, 0.0),  # Identity rotation (no rotation offset)
     ),
+)
+
+GENIE_G2_WALKING_ACTION_SPACE = ActionSpaceInfo(
+    total_dim=8,
+    position_indices=None,
+    orientation_indices=None,
+    joint_indices = (0, 1, 2, 3, 4, 5, 6, 7),  # All action dimensions correspond to joint control
+    gripper_indices=None,
+    grasp_to_ee_offset=None,  # Not relevant for walking action space
 )

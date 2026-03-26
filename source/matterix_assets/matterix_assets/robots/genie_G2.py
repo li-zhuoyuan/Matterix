@@ -36,11 +36,11 @@ marker_cfg.prim_path = "/Visuals/FrameTransformer"
 @configclass
 class GENIE_G2_INST_CFG(MatterixArticulationCfg):
     spawn = sim_utils.UsdFileCfg(
-        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie-G2/robot.usd",
+        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie-G2/robot_fix.usda",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
-            max_depenetration_velocity=5.0,
+            max_depenetration_velocity=0.1,
         ),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
             enabled_self_collisions=True,
@@ -50,39 +50,18 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
     )
 
     init_state = ArticulationCfg.InitialStateCfg(
-        pos=(-0.5, 0, 0),
+        pos=(-0.5, 0, 0.1),
         joint_pos={
             "idx21_arm_l_joint1": 0.0,
-            "idx22_arm_l_joint2": -0.569,
+            "idx22_arm_l_joint2": 0.0,
             "idx23_arm_l_joint3": 0.0,
-            "idx24_arm_l_joint4": -2.000,
+            "idx24_arm_l_joint4": 0.0,
             "idx25_arm_l_joint5": 0.0,
             "idx26_arm_l_joint6": 0.0,
-            "idx27_arm_l_joint7": 0.741,
+            "idx27_arm_l_joint7": 0.0,
         },
     )
-    actuators = {
-        "left_arm": ImplicitActuatorCfg(
-            joint_names_expr=["idx2[1-7]_arm_l_joint[1-7]"],  # 匹配左臂关节
-            stiffness=100.0,
-            damping=10.0,
-        ),
-        "right_arm": ImplicitActuatorCfg(
-            joint_names_expr=["idx6[1-7]_arm_r_joint[1-7]"],
-            stiffness=100.0,
-            damping=10.0,
-        ),
-        "left_gripper": ImplicitActuatorCfg(
-            joint_names_expr=["idx3[1-9]_gripper_l_inner_joint[0-9]"],  # 根据实际需要
-            stiffness=2000.0,
-            damping=100.0,
-        ),
-        "right_gripper": ImplicitActuatorCfg(
-            joint_names_expr=["idx7[1-9]_gripper_r_inner_joint[0-9]"],
-            stiffness=2000.0,
-            damping=100.0,
-        ),
-    }
+    
 
     sensors = {
         "ee_frame": FrameTransformerCfg(
@@ -91,7 +70,7 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
             visualizer_cfg=marker_cfg,
             target_frames=[
                 FrameTransformerCfg.FrameCfg(
-                    prim_path="/gripper_l_base_link",
+                    prim_path="/gripper_l_center_link",
                     name="end_effector",
                 ),
             ],
@@ -103,18 +82,19 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
             visualizer_cfg=marker_cfg,
             target_frames=[
                 FrameTransformerCfg.FrameCfg(
-                    prim_path="/gripper_l_base_link",
+                    prim_path="/gripper_l_center_link",
                     name="grasping_frame",
-                    offset=OffsetCfg(pos=(0.0, 0.0, 0.1034), rot=(0.0, 1.0, 0.0, 0.0)),
                 ),
             ],
         ),
     }
 
+    soft_joint_pos_limit_factor = 1.0
+
     action_terms = {
         "arm_action": mdp.JointPositionActionCfg(joint_names=["idx2[1-7]_arm_l_joint[1-7]"], scale=0.5, use_default_offset=True),
         "gripper_action": mdp.JointPositionActionCfg(
-            joint_names=["idx3[1-9]_gripper_l_inner_joint[0-9]"], scale=0.5, use_default_offset=True
+            joint_names=["idx3[1-9]_gripper_l_inner_joint[0-9]"], use_default_offset=True
         ),
     }
 
@@ -124,14 +104,118 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
 class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
     # Override `spawn` by copying and modifying the nested rigid_props
     spawn = GENIE_G2_INST_CFG().spawn.copy()
-    spawn.rigid_props.disable_gravity = True
+    spawn.rigid_props.disable_gravity = False
 
     # Copy and modify actuators
-    actuators = GENIE_G2_INST_CFG().actuators.copy()
-    actuators["left_arm"] = actuators["left_arm"].copy()
-    actuators["left_arm"].stiffness = 100.0
-    actuators["left_arm"].damping = 10.0
+    actuators = {
+        "left_arm": ImplicitActuatorCfg(
+            joint_names_expr=["idx2[1-7]_arm_l_joint[1-7]"],  # 匹配左臂关节
+            stiffness=100.0,
+            damping=10.0,
+        ),
+        "right_arm": ImplicitActuatorCfg(
+            joint_names_expr=["idx6[1-7]_arm_r_joint[1-7]"],
+            stiffness=100.0,
+            damping=10.0,
+        ),
+        "left_inner_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx3[1-9]_gripper_l_inner_joint[0-9]"],  # 根据实际需要
+            stiffness=2000.0,
+            damping=100.0,
+        ),
+        "right_inner_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx7[1-9]_gripper_r_inner_joint[0-9]"],
+            stiffness=2000.0,
+            damping=100.0,
+        ),
+        "left_outer_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx4[1-9]_gripper_l_outer_joint[0-4]"],
+            stiffness=2000.0,
+            damping=100.0,
+        ),
+        "right_outer_gripper": ImplicitActuatorCfg(
+            joint_names_expr=["idx8[1-9]_gripper_r_outer_joint[0-4]"],
+            stiffness=2000.0,
+            damping=100.0,
+        ),
 
-    actuators["right_arm"] = actuators["right_arm"].copy()
-    actuators["right_arm"].stiffness = 100.0
-    actuators["right_arm"].damping = 10.0
+    }
+
+@configclass
+class GENIE_G2_INST_WALKING_CFG(GENIE_G2_INST_CFG):
+    spawn = GENIE_G2_INST_CFG().spawn.copy()
+    spawn.rigid_props.disable_gravity = False
+
+    # Add collision properties for better contact handling
+    spawn.collision_props = sim_utils.CollisionPropertiesCfg(
+        contact_offset=0.02,
+        rest_offset=0.001,
+    )
+    
+    # Add physics material for wheel friction
+    spawn.rigid_body_material = sim_utils.RigidBodyMaterialCfg(
+        static_friction=1.0,
+        dynamic_friction=1.0,
+        restitution=0.0,
+    )
+
+    # Copy and modify actuators
+    actuators = {
+        "chassis": ImplicitActuatorCfg(
+            joint_names_expr=[
+                "idx1[1-4][1-2]_chassis_lwheel_front_joint[1-2]",   # 左侧前轮
+                "idx1[1-4][1-2]_chassis_rwheel_front_joint[1-2]",    # 右侧前轮
+                "idx1[1-4][1-2]_chassis_lwheel_rear_joint[1-2]",    # 左侧后轮
+                "idx1[1-4][1-2]_chassis_rwheel_rear_joint[1-2]"     # 右侧后轮
+            ],   
+            velocity_limit=500.0,
+            stiffness=0.0,
+            damping=500.0,
+            effort_limit=1000.0,
+        ),
+    }
+
+    sensors = {
+        "ee_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            source_frame_offset=OffsetCfg(pos=(1.0, 0.0, 0.0)),
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/chassis_link",
+                    name="end_effector",
+                ),
+            ],
+        ),
+
+        "walking_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/chassis_link",
+                    name="walking_frame",
+                ),
+            ],
+        ),
+    }
+
+    # link1-steer, link2-driven
+    action_terms = {
+        "chassis_action": mdp.JointVelocityActionCfg(
+            joint_names=[ 
+                "idx111_chassis_lwheel_front_joint1",   # 左侧前轮
+                "idx121_chassis_lwheel_rear_joint1",    # 右侧前轮
+                "idx131_chassis_rwheel_front_joint1",    # 左侧后轮
+                "idx141_chassis_rwheel_rear_joint1",     # 右侧后轮
+                "idx112_chassis_lwheel_front_joint2",   # 左侧前轮
+                "idx122_chassis_lwheel_rear_joint2",    # 右侧前轮
+                "idx132_chassis_rwheel_front_joint2",    # 左侧后轮  
+                "idx142_chassis_rwheel_rear_joint2",     # 右侧后轮
+            ],
+            scale=1.0,
+        )
+    }
+

@@ -27,6 +27,7 @@ from .gripper import (
 from .move_relative import MoveRelative, MoveRelativeCfg
 from .move_to_frame import MoveToFrame, MoveToFrameCfg
 from .move_to_pose import MoveToPose, MoveToPoseCfg
+from .chassis_move import ChassisMove, ChassisMoveCfg
 
 __all__ = [
     # Base class
@@ -38,6 +39,8 @@ __all__ = [
     "MoveToFrameCfg",
     "MoveRelative",
     "MoveRelativeCfg",
+    "ChassisMove",
+    "ChassisMoveCfg",
     # Gripper actions
     "GripperAction",
     "GripperActionCfg",

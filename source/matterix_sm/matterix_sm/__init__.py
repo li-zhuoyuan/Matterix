@@ -50,6 +50,8 @@ from .primitive_actions import (
     MoveToFrameCfg,
     OpenGripper,
     OpenGripperCfg,
+    ChassisMove,
+    ChassisMoveCfg,
 )
 from .scene_data import ArticulationData, Pose, RigidObjectData, SceneData
 from .state_machine import StateMachine
@@ -82,6 +84,8 @@ __all__ = [
     "OpenGripperCfg",
     "CloseGripper",
     "CloseGripperCfg",
+    "ChassisMove",
+    "ChassisMoveCfg",
     # Compositional actions
     "CompositionalAction",
     "CompositionalActionCfg",
