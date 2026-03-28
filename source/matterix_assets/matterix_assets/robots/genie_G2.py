@@ -62,41 +62,7 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
         },
     )
     
-
-    sensors = {
-        "ee_frame": FrameTransformerCfg(
-            prim_path="/base_link",
-            debug_vis=False,
-            visualizer_cfg=marker_cfg,
-            target_frames=[
-                FrameTransformerCfg.FrameCfg(
-                    prim_path="/gripper_l_center_link",
-                    name="end_effector",
-                ),
-            ],
-        ),
-
-        "grasping_frame": FrameTransformerCfg(
-            prim_path="/base_link",
-            debug_vis=False,
-            visualizer_cfg=marker_cfg,
-            target_frames=[
-                FrameTransformerCfg.FrameCfg(
-                    prim_path="/gripper_l_center_link",
-                    name="grasping_frame",
-                ),
-            ],
-        ),
-    }
-
     soft_joint_pos_limit_factor = 1.0
-
-    action_terms = {
-        "arm_action": mdp.JointPositionActionCfg(joint_names=["idx2[1-7]_arm_l_joint[1-7]"], scale=0.5, use_default_offset=True),
-        "gripper_action": mdp.JointPositionActionCfg(
-            joint_names=["idx3[1-9]_gripper_l_inner_joint[0-9]"], use_default_offset=True
-        ),
-    }
 
     semantic_tags = [("class", "robot")]
 
@@ -139,6 +105,47 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
             damping=100.0,
         ),
 
+    }
+
+    sensors = {
+        "ee_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/gripper_l_center_link",
+                    name="end_effector",
+                ),
+            ],
+        ),
+
+        "grasping_frame": FrameTransformerCfg(
+            prim_path="/base_link",
+            debug_vis=False,
+            visualizer_cfg=marker_cfg,
+            target_frames=[
+                FrameTransformerCfg.FrameCfg(
+                    prim_path="/gripper_l_center_link",
+                    name="grasping_frame",
+                ),
+            ],
+        ),
+    }
+
+    action_terms = {
+        "arm_action": DifferentialInverseKinematicsActionCfg(
+            asset_name = "robot",
+            joint_names = ["idx21_arm_l_joint1", "idx22_arm_l_joint2", "idx23_arm_l_joint3", 
+                           "idx24_arm_l_joint4", "idx25_arm_l_joint5", "idx26_arm_l_joint6", "idx27_arm_l_joint7"], 
+            body_name = "gripper_l_center_link", # "arm_l_end_link",
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.05), rot=(0.0, 1.0, 0.0, 0.0)),
+        ),
+        # "gripper_action": mdp.JointPositionActionCfg(
+        #     joint_names=["idx3[1-9]_gripper_l_inner_joint[0-9]"], 
+        #     use_default_offset=True
+        # ),
     }
 
 @configclass

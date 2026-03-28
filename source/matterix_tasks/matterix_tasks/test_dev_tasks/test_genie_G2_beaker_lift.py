@@ -13,6 +13,7 @@ from matterix_assets.robots import GENIE_G2_INST_HIGH_PD_CFG, GENIE_G2_INST_WALK
 
 # Import workflow definitions from separate file (avoids circular deps and allows lightweight listing)
 from matterix_sm import PickObjectCfg
+from matterix_sm import MoveToFrameCfg
 from matterix_sm import MoveRelativeCfg
 from matterix_sm import ChassisMoveCfg
 from matterix_sm.robot_action_spaces import GENIE_G2_GRASP_ACTION_SPACE, GENIE_G2_WALKING_ACTION_SPACE
@@ -44,7 +45,7 @@ class EventCfg(EventManagerCfg):
         mode="reset",
         params={
             "pose_range": {
-                "x": (-0.1, 0.1),  # Offset from default position (0.6)
+                "x": (-0.05, 0.05),  # Offset from default position (0.6)
                 "y": (-0.15, 0.15),  # Offset from default position (0.05)
                 "z": (0.0, 0.0),  # Keep default Z height
             },
@@ -73,14 +74,26 @@ class ObservationManagerCfg:
         robot__ee_world_pos = ObsTerm(func=mdp.ee_world_pos, params={"asset_name": "robot"})
         robot__ee_world_quat = ObsTerm(func=mdp.ee_world_quat, params={"asset_name": "robot"})
         robot__gripper_pos = ObsTerm(func=mdp.gripper_pos, params={"asset_name": "robot"})
-        robot__walking_frame_world_pos = ObsTerm(
+        
+        # Robot Grasping as below
+        robot__grasping_frame_world_pos = ObsTerm(
             func=mdp.frame_world_pos,
-            params={"asset_name": "robot", "frame_name": "walking_frame"},
+            params={"asset_name": "robot", "frame_name": "grasping_frame"},
         )
-        robot__walking_frame_world_quat = ObsTerm(
+        robot__grasping_frame_world_quat = ObsTerm(
             func=mdp.frame_world_quat,
-            params={"asset_name": "robot", "frame_name": "walking_frame"},
+            params={"asset_name": "robot", "frame_name": "grasping_frame"},
         )
+
+        # Robot Moving as below
+        # robot__walking_frame_world_pos = ObsTerm(
+        #     func=mdp.frame_world_pos,
+        #     params={"asset_name": "robot", "frame_name": "walking_frame"},
+        # )
+        # robot__walking_frame_world_quat = ObsTerm(
+        #     func=mdp.frame_world_quat,
+        #     params={"asset_name": "robot", "frame_name": "walking_frame"},
+        # )
 
         def __post_init__(self):
             self.enable_corruption = False
@@ -122,13 +135,13 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
     env_spacing = 5.0
 
     objects = {
-        "beaker": BEAKER_500ML_INST_CFG(pos=(0.6, 0.05, 0.05)),
+        "beaker": BEAKER_500ML_INST_CFG(pos=(-0.15, 0.15, 0.05)),
         "table": TABLE_SEATTLE_INST_Cfg(pos=(0.5, 0, 0)),
     }
 
     articulated_assets = {
-        "robot": GENIE_G2_INST_WALKING_CFG(pos = (-5.0, 0, 0)),
-        # "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.5, 0, 0)),  # robot arm with joint controller
+        # "robot": GENIE_G2_INST_WALKING_CFG(pos = (-5.0, 0, 0)),
+        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.8, 0, -1.0)),  # robot arm with joint controller
     }
     
     # Gripper joint names for observation functions
@@ -141,9 +154,10 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
 
     # Define available workflows for this environment
     workflows = {
-        "pickup_beaker": PickObjectCfg(
+        "pickup_beaker": MoveToFrameCfg(
             description="Pick up the beaker",
             agent_assets="robot",
+            frame="grasp",
             object="beaker",
             action_space_info=GENIE_G2_GRASP_ACTION_SPACE,  
         ),

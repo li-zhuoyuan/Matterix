@@ -94,11 +94,11 @@ robot_cfg = ArticulationCfg(
             stiffness=0.0,
             damping=0.0,
         ),
-        # "body": ImplicitActuatorCfg(
-        #     joint_names_expr=[".*body.*",".*head.*"],  # 匹配所有躯干和头部关节
-        #     stiffness=1000.0,
-        #     damping=80.0,
-        # ),
+        "body": ImplicitActuatorCfg(
+            joint_names_expr=[".*body.*",".*head.*"],  # 匹配所有躯干和头部关节
+            stiffness=1000.0,
+            damping=80.0,
+        ),
     },
 )
 
