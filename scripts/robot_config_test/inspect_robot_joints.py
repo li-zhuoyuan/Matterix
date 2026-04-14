@@ -25,18 +25,19 @@ import isaaclab.sim as sim_utils
 robot_cfg = ArticulationCfg(
     prim_path= "/World/envs/env_0/Robot", #"/World/Robot",  # 添加：机器人在场景中的路径
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie-G2/robot_fix.usda",  # 使用固定的机器人模型
+        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie/G1_omnipicker/robot.usda", #G2/robot_fix.usda",  # 使用固定的机器人模型
     ),
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0, 0, 2.0),
     ),
     actuators={  # 添加：驱动器配置
-        "arm": ImplicitActuatorCfg(
+        "all_joints": ImplicitActuatorCfg(
             joint_names_expr=[".*"],  # 匹配所有关节
             stiffness=100.0,
             damping=10.0,
         ),
     },
+    soft_joint_pos_limit_factor=10.0,  # 使用完整的关节限制范围
 )
 
 # 实例化机器人

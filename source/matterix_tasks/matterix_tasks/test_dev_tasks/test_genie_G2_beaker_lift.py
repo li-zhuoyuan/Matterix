@@ -135,13 +135,12 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
     env_spacing = 5.0
 
     objects = {
-        "beaker": BEAKER_500ML_INST_CFG(pos=(-0.15, 0.15, 0.05)),
+        "beaker": BEAKER_500ML_INST_CFG(pos=(-0.25, 0.15, 0.05)),
         "table": TABLE_SEATTLE_INST_Cfg(pos=(0.5, 0, 0)),
     }
 
     articulated_assets = {
-        # "robot": GENIE_G2_INST_WALKING_CFG(pos = (-5.0, 0, 0)),
-        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.8, 0, -1.0)),  # robot arm with joint controller
+        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.9, 0, -0.0)),  # robot arm with joint controller
     }
     
     # Gripper joint names for observation functions
@@ -157,7 +156,7 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
         "pickup_beaker": MoveToFrameCfg(
             description="Pick up the beaker",
             agent_assets="robot",
-            frame="grasp",
+            frame="pre_grasp",
             object="beaker",
             action_space_info=GENIE_G2_GRASP_ACTION_SPACE,  
         ),

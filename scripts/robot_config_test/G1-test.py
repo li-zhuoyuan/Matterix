@@ -39,7 +39,7 @@ sim = SimulationContext()
 robot_cfg = ArticulationCfg(
     prim_path="/World/Robot",
     spawn=sim_utils.UsdFileCfg(
-        usd_path="d:/Beginning with Embodied/Matterix/source/matterix_assets/data/robots/genie/G2_omnipicker/robot_fix.usda",  # 替换为实际路径
+        usd_path="d:/Beginning with Embodied/Matterix/source/matterix_assets/data/robots/genie/G1_omnipicker/robot.usda",  # 替换为实际路径
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -52,7 +52,7 @@ robot_cfg = ArticulationCfg(
         ),
     ),
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(-0.5, 0, 1.0),  # 提高初始高度，避免与地面碰撞
+        pos=(-0.5, 0, 0.0),  # 提高初始高度，避免与地面碰撞
         rot=(1.0, 0.0, 0.0, 0.0),
         joint_pos={
             "idx21_arm_l_joint1": 0.0,
@@ -120,7 +120,7 @@ robot = Articulation(robot_cfg)
 sim.reset()
 
 print("=" * 80)
-print("Genie G2 机器人控制 - Isaac Lab 原生 API")
+print("Genie G1 机器人控制 - Isaac Lab 原生 API")
 print("=" * 80)
 print(f"关节数量：{robot.num_joints}")
 print(f"关节名称：{robot.joint_names}")
@@ -189,7 +189,7 @@ while simulation_app.is_running():
                 0.0,
             ]], device=robot.device)  # 夹紧
 
-        phase = 3
+        phase = (count // period) % 4
         
         if phase == 0:
             # 手臂抬起
