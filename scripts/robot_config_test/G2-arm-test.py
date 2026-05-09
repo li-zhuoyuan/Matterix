@@ -39,7 +39,7 @@ sim = SimulationContext()
 robot_cfg = ArticulationCfg(
     prim_path="/World/Robot",
     spawn=sim_utils.UsdFileCfg(
-        usd_path="d:/Beginning with Embodied/Matterix/source/matterix_assets/data/robots/genie/G2_omnipicker/robot_fix.usda",  # 替换为实际路径
+        usd_path="d:/Beginning with Embodied/Matterix/source/matterix_assets/data/robots/genie/G2_place_workpiece/robot.usda",  # 替换为实际路径
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -144,14 +144,14 @@ joint_ids = [
             ]
 print(robot.data.joint_pos_limits[0, joint_ids])
 gripper_joint_ids = [
-                robot.find_joints("idx39_gripper_l_inner_joint0")[0][0],
+                # robot.find_joints("idx39_gripper_l_inner_joint0")[0][0],
                 robot.find_joints("idx31_gripper_l_inner_joint1")[0][0],
-                robot.find_joints("idx32_gripper_l_inner_joint3")[0][0],
-                robot.find_joints("idx33_gripper_l_inner_joint4")[0][0],
-                robot.find_joints("idx49_gripper_l_outer_joint0")[0][0],
+                # robot.find_joints("idx32_gripper_l_inner_joint3")[0][0],
+                # robot.find_joints("idx33_gripper_l_inner_joint4")[0][0],
+                # robot.find_joints("idx49_gripper_l_outer_joint0")[0][0],
                 robot.find_joints("idx41_gripper_l_outer_joint1")[0][0],
-                robot.find_joints("idx42_gripper_l_outer_joint3")[0][0],
-                robot.find_joints("idx43_gripper_l_outer_joint4")[0][0],
+                # robot.find_joints("idx42_gripper_l_outer_joint3")[0][0],
+                # robot.find_joints("idx43_gripper_l_outer_joint4")[0][0],
 ]
 print(robot.data.joint_pos_limits[0, gripper_joint_ids])
 print(robot.data.joint_effort_limits[0, gripper_joint_ids])
@@ -167,29 +167,29 @@ while simulation_app.is_running():
 
         if phase_gripper == 0:
             gripper_target_pos = torch.tensor([[
-                0.0,#2.0,
+                # 0.0,#2.0,
                 0.0,#-0.7854,
-                0.0,#0.1745,
-                0.0,#0.0349,
-                0.0,#2.0,
+                # 0.0,#0.1745,
+                # 0.0,#0.0349,
+                # 0.0,#2.0,
                 0.7854,
-                0.0,#0.1745,
-                0.0,#0.0349,
+                # 0.0,#0.1745,
+                # 0.0,#0.0349,
             ]], device=robot.device)  # 张开
         
         else:
             gripper_target_pos = torch.tensor([[
+                # 0.0,
                 0.0,
+                # 0.0,
+                # 0.0,
+                # 0.0,
                 0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
+                # 0.0,
+                # 0.0,
             ]], device=robot.device)  # 夹紧
 
-        phase = 3
+        phase = (count // period) % 4
         
         if phase == 0:
             # 手臂抬起

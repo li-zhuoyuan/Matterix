@@ -140,11 +140,11 @@ class G2LiftEnvTestCfg(MatterixBaseEnvCfg):
     }
 
     articulated_assets = {
-        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.9, 0, -0.0)),  # robot arm with joint controller
+        "robot": GENIE_G2_INST_HIGH_PD_CFG(pos=(-0.9, 0, 0.5), rot=(0.71, -0.71, 0.0, 0.0)), # GENIE_G2_INST_WALKING_CFG # robot arm with joint controller
     }
     
     # Gripper joint names for observation functions
-    gripper_joint_names = ["idx33_gripper_l_inner_joint4", "idx43_gripper_l_outer_joint4"]
+    gripper_joint_names = ["idx31_gripper_l_inner_joint1", "idx41_gripper_l_outer_joint1"]
 
     observations = ObservationManagerCfg()
     events = EventCfg()

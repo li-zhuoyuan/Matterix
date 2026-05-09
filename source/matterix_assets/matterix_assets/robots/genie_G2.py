@@ -36,7 +36,7 @@ marker_cfg.prim_path = "/Visuals/FrameTransformer"
 @configclass
 class GENIE_G2_INST_CFG(MatterixArticulationCfg):
     spawn = sim_utils.UsdFileCfg(
-        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie/G2_omnipicker/robot.usda",
+        usd_path=f"{MATTERIX_ASSETS_DATA_DIR}/robots/genie/G2_place_workpiece/robot.usda",  # G2_place_workpiece/robot.usda",
         activate_contact_sensors=False,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -50,7 +50,7 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
     )
 
     init_state = ArticulationCfg.InitialStateCfg(
-        pos=(-0.5, 0, 0.1),
+        rot=(0.71, -0.71, 0.0, 0.0),
         joint_pos={
             "idx21_arm_l_joint1": 0.0,
             "idx22_arm_l_joint2": 0.0,
@@ -60,10 +60,10 @@ class GENIE_G2_INST_CFG(MatterixArticulationCfg):
             "idx26_arm_l_joint6": 0.0,
             "idx27_arm_l_joint7": 0.0,
             "idx0[1-3]_body_joint[1-3]": 0.0,
-            "idx1[1-4][1-2]_chassis_lwheel_front_joint[1-2]": 0.0,
-            "idx1[1-4][1-2]_chassis_rwheel_front_joint[1-2]": 0.0,
-            "idx1[1-4][1-2]_chassis_lwheel_rear_joint[1-2]": 0.0,
-            "idx1[1-4][1-2]_chassis_rwheel_rear_joint[1-2]": 0.0,
+            # "idx1[1-4][1-2]_chassis_lwheel_front_joint[1-2]": 0.0,
+            # "idx1[1-4][1-2]_chassis_rwheel_front_joint[1-2]": 0.0,
+            # "idx1[1-4][1-2]_chassis_lwheel_rear_joint[1-2]": 0.0,
+            # "idx1[1-4][1-2]_chassis_rwheel_rear_joint[1-2]": 0.0,
         },
     )
     
@@ -109,26 +109,26 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
             stiffness=2000.0,
             damping=100.0,
         ),
-        "chassis": ImplicitActuatorCfg(
-            joint_names_expr=[
-                "idx1[1-4][1-2]_chassis_lwheel_front_joint[1-2]",   # 左侧前轮
-                "idx1[1-4][1-2]_chassis_rwheel_front_joint[1-2]",    # 右侧前轮
-                "idx1[1-4][1-2]_chassis_lwheel_rear_joint[1-2]",    # 左侧后轮
-                "idx1[1-4][1-2]_chassis_rwheel_rear_joint[1-2]"     # 右侧后轮
-            ],   
-            stiffness=100.0,
-            damping=10.0,
-        ),
-        "body": ImplicitActuatorCfg(
-            joint_names_expr=["idx0[1-5]_body_joint[1-5]"],
-            stiffness=100.0,
-            damping=10.0,
-        ),
-        "head": ImplicitActuatorCfg(
-            joint_names_expr=["idx1[1-3]_head_joint[1-3]"],
-            stiffness=100.0,
-            damping=10.0,
-        )
+        # "chassis": ImplicitActuatorCfg(
+        #     joint_names_expr=[
+        #         "idx1[1-4][1-2]_chassis_lwheel_front_joint[1-2]",   # 左侧前轮
+        #         "idx1[1-4][1-2]_chassis_rwheel_front_joint[1-2]",    # 右侧前轮
+        #         "idx1[1-4][1-2]_chassis_lwheel_rear_joint[1-2]",    # 左侧后轮
+        #         "idx1[1-4][1-2]_chassis_rwheel_rear_joint[1-2]"     # 右侧后轮
+        #     ],   
+        #     stiffness=100.0,
+        #     damping=10.0,
+        # ),
+        # "body": ImplicitActuatorCfg(
+        #     joint_names_expr=["idx0[1-5]_body_joint[1-5]"],
+        #     stiffness=100.0,
+        #     damping=10.0,
+        # ),
+        # "head": ImplicitActuatorCfg(
+        #     joint_names_expr=["idx1[1-3]_head_joint[1-3]"],
+        #     stiffness=100.0,
+        #     damping=10.0,
+        # )
     }
 
     sensors = {
@@ -163,8 +163,8 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
             joint_names = ["idx21_arm_l_joint1", "idx22_arm_l_joint2", "idx23_arm_l_joint3", 
                            "idx24_arm_l_joint4", "idx25_arm_l_joint5", "idx26_arm_l_joint6", "idx27_arm_l_joint7"], 
             body_name = "gripper_l_base_link",
-            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls", ik_params={"lambda_val": 0.5}),
-            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.005, 0.0, 0.0), rot=(0.0, 1.0, 0.0, 0.0)),
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls", ik_params={"lambda_val": 0.005, "k_val": 1.0}),
+            body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0.71, -0.71, 0.0, 0.0)),
         ),
         "gripper_action": mdp.JointPositionActionCfg(
             joint_names=["idx41_gripper_l_outer_joint1"], 
