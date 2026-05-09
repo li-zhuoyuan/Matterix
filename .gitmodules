@@ -2,3 +2,9 @@
 	path = source/matterix_assets/data
 	url = https://github.com/AccelerationConsortium/Matterix_assets.git
 	ignore = all
+[submodule "libs-policy/act-plus-plus"]
+	path = libs-policy/act-plus-plus
+	url = https://github.com/li-zhuoyuan/act-plus-plus.git
+[submodule "libs-policy/brs-algo"]
+	path = libs-policy/brs-algo
+	url = https://github.com/li-zhuoyuan/brs-algo.git
