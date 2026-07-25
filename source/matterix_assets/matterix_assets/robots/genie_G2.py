@@ -133,7 +133,7 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
 
     sensors = {
         "ee_frame": FrameTransformerCfg(
-            prim_path="/base_link",
+            prim_path="/arm_base_link",
             debug_vis=False,
             visualizer_cfg=marker_cfg,
             target_frames=[
@@ -145,7 +145,7 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
         ),
 
         "grasping_frame": FrameTransformerCfg(
-            prim_path="/base_link",
+            prim_path="/arm_base_link",
             debug_vis=False,
             visualizer_cfg=marker_cfg,
             target_frames=[
@@ -163,7 +163,7 @@ class GENIE_G2_INST_HIGH_PD_CFG(GENIE_G2_INST_CFG):
             joint_names = ["idx21_arm_l_joint1", "idx22_arm_l_joint2", "idx23_arm_l_joint3", 
                            "idx24_arm_l_joint4", "idx25_arm_l_joint5", "idx26_arm_l_joint6", "idx27_arm_l_joint7"], 
             body_name = "gripper_l_base_link",
-            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls", ik_params={"lambda_val": 0.005, "k_val": 1.0}),
+            controller=DifferentialIKControllerCfg(command_type="pose", use_relative_mode=False, ik_method="dls"),# ik_params={"lambda_val": 0.005, "k_val": 1.0}),
             body_offset=DifferentialInverseKinematicsActionCfg.OffsetCfg(pos=(0.0, 0.0, 0.0), rot=(0.71, -0.71, 0.0, 0.0)),
         ),
         "gripper_action": mdp.JointPositionActionCfg(
